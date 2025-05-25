@@ -2,7 +2,9 @@
 
 ### Link to page deployment:
 
-[test]
+[https://bellachip49.github.io/Lab8_Starter/](https://bellachip49.github.io/Lab8_Starter/)
+
+
 
 ### In your README.md, please add a short paragraph answering the question: How are graceful degradation and service workers related?
 
