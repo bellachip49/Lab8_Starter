@@ -54,6 +54,25 @@ function initializeServiceWorker() {
   // B5. TODO - In the event that the service worker registration fails, console
   //            log that it has failed.
   // STEPS B6 ONWARDS WILL BE IN /sw.js
+  // B1. Check if 'serviceWorker' is supported in the current browser
+  
+  if ('serviceWorker' in navigator) {
+    // B2. Listen for the 'load' event on the window object
+    window.addEventListener('load', () => {
+      // B3. Register './sw.js' as a service worker
+      navigator.serviceWorker.register('./sw.js')
+        .then(registration => {
+          // B4. Service worker successfully registered
+          console.log('ServiceWorker registration successful with scope: ', registration.scope);
+        })
+        .catch(error => {
+          // B5. Service worker registration failed
+          console.log('ServiceWorker registration failed: ', error);
+        });
+    });
+  } else {
+    console.log('Service workers are not supported in this browser.');
+  }
 }
 
 /**
@@ -100,6 +119,47 @@ async function getRecipes() {
   //            resolve() method.
   // A10. TODO - Log any errors from catch using console.error
   // A11. TODO - Pass any errors to the Promise's reject() function
+
+  // A1. Check local storage for recipes
+  const storedRecipes = localStorage.getItem('recipes');
+  if (storedRecipes) {
+    return JSON.parse(storedRecipes);
+  }
+
+  // A2. Create empty array for fetched recipes
+  const recipes = [];
+
+  // A3. Return a new Promise
+  return new Promise(async (resolve, reject) => {
+    // A4. Loop through each recipe URL
+    for (const url of RECIPE_URLS) {
+      try {
+        // A6. Fetch the URL
+        const response = await fetch(url);
+        
+        // A7. Retrieve JSON from response
+        const recipe = await response.json();
+        
+        // A8. Add new recipe to array
+        recipes.push(recipe);
+        
+        // A9. Check if all recipes are retrieved
+        if (recipes.length === RECIPE_URLS.length) {
+          // Save to localStorage
+          saveRecipesToStorage(recipes);
+          // Resolve the promise with the recipes array
+          resolve(recipes);
+        }
+      } catch (error) {
+        // A10. Log any errors
+        console.error('Error fetching recipe:', error);
+        // A11. Reject the promise with the error
+        reject(error);
+        // Break out of the loop on error
+        break;
+      }
+    }
+  });
 }
 
 /**
